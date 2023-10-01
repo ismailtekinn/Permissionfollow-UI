@@ -1,7 +1,5 @@
-import React, { useState } from "react";
-
-import { useFormik } from 'formik'
-
+import React from "react";
+import { useFormik } from "formik";
 import {
   Flex,
   Box,
@@ -11,76 +9,44 @@ import {
   Input,
   Button,
   Alert,
+  Text,
 } from "@chakra-ui/react";
-import { Link, useNavigate } from "react-router-dom";
 
-import axios from "axios";
 import { fetchLogin } from "../../../api";
 import { useAuth } from "../../../Context/AuthContext";
-// import { useFormik } from 'formik'
+import { useNavigate } from "react-router-dom";
+import validations from "./validation";
 
 function Signin() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const {login} = useAuth();
-
-  const [error, setError] = useState("");
-  // const navigate = useNavigate();
-
-  const handleEmailChange = (value) => {
-    setEmail(value);
-  };
-  const handlePasswordChange = (value) => {
-    setPassword(value);
-  };
-  
-
-
-//   const hangleSignin = (e) => {
-//     e.preventDefault();
-//     const data = {
-//       Email: email,
-//       Password: password,
-//     };
-//     const url = "https://localhost:44373/Auth/Login";
-//     axios
-//       .post(url, data)
-//       .then((res) => res.data)
-//       .then((data) => { console.log(data);
-//         if (data.isSuccess === false) {
-//           setError(data.message);
-//         } else {
-//           localStorage.setItem("token", data.data.token);
-//           // navigate("/");
-//         }
-//       })
-// };
-
-const formik = useFormik({
-  initialValues: {
-    email:"",password:"",passwordConfirm:""
-  },
-
-
-  onSubmit: async (values, bag ) => {
-   try{
-    const loginResponse = await fetchLogin({email:values.email, password:values.password});
-    login()
-
-
-    // history.push('/profile');
-    // browserHistory.push('/profile');
-    console.log(loginResponse)
-   }
-   catch(e){
-     bag.setErrors({general:e.response.data.message});
-   }
-  }
-});
-
-
+  const formik = useFormik({
+    initialValues: {
+      email: "",
+      password: "",
+    },
+    validationSchema: validations,
     
+    onSubmit: async (values, bag) => {
+      try {
+        const inputModel = {
+          email: values.email,
+          password: values.password,
+        };
+        const loginResponse = await fetchLogin(inputModel);
+
+        if (!loginResponse.isSuccess) {
+          bag.setErrors({ general: loginResponse.message });
+        } else {
+          login(loginResponse.data);
+          navigate("/");
+        }
+      } catch (e) {
+        bag.setErrors({ general: e.response.data.message });
+      }
+    },
+  });
   return (
     <div>
       <Flex align="center" width="full" justifyContent="center">
@@ -89,42 +55,42 @@ const formik = useFormik({
             <Heading>Signin</Heading>
           </Box>
 
-          {error !== "" ? (
+          {formik.errors.general && (
             <Box textAlign="center">
-              <Alert status="error">{error}</Alert>
-             
+              <Alert status="error">{formik.errors.general}</Alert>
             </Box>
-          ) : (
-            ""
           )}
 
           <Box my={5} textAlign="left">
             <form onSubmit={formik.handleSubmit}>
               <FormControl>
                 <FormLabel>E-Mail</FormLabel>
-
                 <Input
                   name="email"
-                  onChange={(e) => handleEmailChange(e.target.value)}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={formik.touched.email && formik.errors.email}
                 />
+                {formik.touched.email && (
+                  <Text color="red">{formik.errors.email}</Text>
+                )}
               </FormControl>
 
               <FormControl>
                 <FormLabel>Password</FormLabel>
-
                 <Input
                   name="password"
                   type="password"
-                  onChange={(e) => handlePasswordChange(e.target.value)}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={formik.touched.password && formik.errors.password}
                 />
+                 {formik.touched.password && (
+                  <Text color="red">{formik.errors.password}</Text>
+                )}
               </FormControl>
 
-              <Button
-                mt={4}
-                width={"full"}
-                type="submit"
-                // onClick={(e) => hangleSignin(e)}
-              >
+              <Button mt={4} width={"full"} type="submit">
                 Signin
               </Button>
             </form>
