@@ -4,23 +4,26 @@ import Signin from "./pages/Auth/Signin";
 import Content from "./pages/Content/Content";
 import Header from "./components/header/Header";
 import ProtectedRoutes from "./protectedRoutes";
+import { Box } from "@chakra-ui/layout";
+import { Card } from "@chakra-ui/card";
+import PersonelList from "./pages/Content/PersonelList";
 
 function App() {
   return (
-    <div className="App">
+    <Box bgColor="gray.100">
       <Router>
-        <div>
-          <Header/>
-        </div>
-     <Routes>
-        <Route path="/" element = {<ProtectedRoutes component={Content}/>} />
-        <Route path="/signin" Component={Signin}/>
-      
-      </Routes>
-       
+        <Card>
+          <Header />
+        </Card>
+        <Box m="5">
+          <Routes>
+            <Route path="/" element={<ProtectedRoutes component={Content} />} />
+            <Route path="/personel-list" Component={PersonelList} />
+            <Route path="/signin" Component={Signin} />
+          </Routes>
+        </Box>
       </Router>
-    </div>
+    </Box>
   );
 }
-
 export default App;

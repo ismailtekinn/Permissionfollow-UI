@@ -23,3 +23,17 @@ export const fetchMe = async () => {
     const { data } = await axios.get("https://localhost:44373/auth/me");
     return data;
   };
+
+  export const fetchDepartments = async () => {
+    const {data} = await axios.get("https://localhost:44373/api/department/departments");
+    return (data);
+  }
+  export const fetchRegister = async (model) => {
+    const {data} = await axios.post("https://localhost:44373/auth/register", model);
+    return data;
+  };
+
+  export const fetchPersonelList = async() => {
+    const {data} = await axios.get("https://localhost:44373/api/user/personel-list");
+    return data;
+  }
