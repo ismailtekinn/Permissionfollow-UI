@@ -37,3 +37,8 @@ export const fetchMe = async () => {
     const {data} = await axios.get(`https://localhost:44373/api/user/personel-list?page=${page}&limit=${limit}`);
     return data;
   }
+  
+  export const fetchUpdatePersonel = async(personel) => {
+    const {data} = await axios.post("https://localhost:44373/api/user/personel-update", personel);
+    return data;
+  }

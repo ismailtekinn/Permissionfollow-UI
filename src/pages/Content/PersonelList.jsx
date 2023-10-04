@@ -28,19 +28,20 @@ import {
   SmallCloseIcon,
 } from "@chakra-ui/icons";
 import { fetchPersonelList } from "../../api";
+import { useUser } from "../../Context/UserContext";
 
 function PersonelList() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [personelList, setPersonelList] = useState([]);
-  console.log("page :", page);
+  const {editButtonClick, updatePersonelDone } = useUser();
 
   useEffect(() => {
     (async () => {
       const _personelList = await fetchPersonelList(page, limit);
       setPersonelList(_personelList.data);
     })();
-  }, [page, limit]);
+  }, [page, limit, updatePersonelDone]);
 
   return (
     <Card m={5}>
@@ -78,7 +79,7 @@ function PersonelList() {
                   </Td>
                   <Td>{personel.createdAt}</Td>
                   <Td>
-                    <Button colorScheme="teal" size="xs">
+                    <Button colorScheme="teal" size="xs" onClick={() => editButtonClick(personel)}>
                       Güncelle
                     </Button>{" "}
                     <Button colorScheme="red" size="xs">

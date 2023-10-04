@@ -20,10 +20,10 @@ import {
 import { useUser } from "../../Context/UserContext";
 import { useFormik } from "formik";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { fetchDepartments, fetchRegister } from "../../api";
+import { fetchDepartments, fetchRegister, fetchUpdatePersonel } from "../../api";
 
 function CreateUserModal() {
-  const { isOpenCreateUser, onCloseCreateUser } = useUser();
+  const { isOpenCreateUser, onCloseCreateUser,editPersonel, setUpdatePersonelDone, updatePersonelDone } = useUser();
   const { data } = useInfiniteQuery({
     queryKey: ["departments"],
     queryFn: fetchDepartments,
@@ -32,11 +32,12 @@ function CreateUserModal() {
 
   const formik = useFormik({
     initialValues: {
-      email: "",
-      firstName: "",
-      lastName: "",
-      departmentId: null,
-      isManager: false,
+      id: editPersonel.id,
+      email: editPersonel.email,
+      firstName: editPersonel.firstName,
+      lastName: editPersonel.lastName,
+      departmentId: editPersonel.departmentId,
+      isManager: editPersonel.isManager,
     },
     onSubmit: async (values, bag) => {
       try {
@@ -47,8 +48,18 @@ function CreateUserModal() {
           departmentId: parseInt(values.departmentId),
           isManager: values.isManager,
         };
-        const response = await fetchRegister(model);
-        console.log("register response :", response);
+
+        let response;
+        
+        if(values.id !== 0){
+          model.id = values.id;
+          response = await fetchUpdatePersonel(model);
+          console.log('response: ', response);
+        }
+        else{
+          response= await fetchRegister(model);
+        }
+
         if (!response.isSuccess) {
           bag.setErrors({ general: response.message });
         } else {
@@ -58,8 +69,10 @@ function CreateUserModal() {
             status: "success",
           });
           onCloseCreateUser();
+          setUpdatePersonelDone(!updatePersonelDone)
         }
       } catch (error) {
+        console.log('error :', error);
         bag.setErrors({ general: error.response.data.message });
       }
     },
@@ -83,6 +96,7 @@ function CreateUserModal() {
               <Input
                 placeholder="Ad"
                 name="firstName"
+                value={formik.values.firstName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
@@ -93,6 +107,7 @@ function CreateUserModal() {
               <Input
                 placeholder="Soyad"
                 name="lastName"
+                value={formik.values.lastName}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
@@ -104,6 +119,7 @@ function CreateUserModal() {
                 placeholder="Email"
                 type="email"
                 name="email"
+                value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
@@ -114,6 +130,7 @@ function CreateUserModal() {
               <Select
                 placeholder="Birim Seçiniz"
                 name="departmentId"
+                value={formik.values.departmentId}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               >
@@ -133,6 +150,7 @@ function CreateUserModal() {
               <Switch
                 id="isManager"
                 name="isManager"
+                isChecked= {formik.values.isManager}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
               />
