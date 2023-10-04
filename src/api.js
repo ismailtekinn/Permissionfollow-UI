@@ -33,7 +33,7 @@ export const fetchMe = async () => {
     return data;
   };
 
-  export const fetchPersonelList = async() => {
-    const {data} = await axios.get("https://localhost:44373/api/user/personel-list");
+  export const fetchPersonelList = async(page,limit) => {
+    const {data} = await axios.get(`https://localhost:44373/api/user/personel-list?page=${page}&limit=${limit}`);
     return data;
   }

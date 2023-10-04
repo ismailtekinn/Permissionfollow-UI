@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   TableContainer,
   Tbody,
@@ -27,14 +27,21 @@ import {
   ChevronRightIcon,
   SmallCloseIcon,
 } from "@chakra-ui/icons";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { fetchPersonelList } from "../../api";
 
 function PersonelList() {
-  const { data } = useInfiniteQuery({
-    queryKey: ["personel-list"],
-    queryFn: fetchPersonelList,
-  });
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [personelList, setPersonelList] = useState([]);
+  console.log("page :", page);
+
+  useEffect(() => {
+    (async () => {
+      const _personelList = await fetchPersonelList(page, limit);
+      setPersonelList(_personelList.data);
+    })();
+  }, [page, limit]);
+
   return (
     <Card m={5}>
       <TableContainer>
@@ -53,23 +60,23 @@ function PersonelList() {
             </Tr>
           </Thead>
           <Tbody>
-            {data &&
-              data.pages[0].data.map((pageItem) => (
-                <Tr key={pageItem.id}>
-                  <Td>{pageItem.firstName}</Td>
-                  <Td>{pageItem.lastName}</Td>
-                  <Td>{pageItem.email}</Td>
-                  <Td>{pageItem.birim}</Td>
-                  <Td>{pageItem.roleName}</Td>
-                  <Td>{pageItem.isDelete}</Td>
+            {personelList.length !== 0 ? (
+              personelList.map((personel) => (
+                <Tr key={personel.id}>
+                  <Td>{personel.firstName}</Td>
+                  <Td>{personel.lastName}</Td>
+                  <Td>{personel.email}</Td>
+                  <Td>{personel.birim}</Td>
+                  <Td>{personel.roleName}</Td>
+                  <Td>{personel.isDelete}</Td>
                   <Td>
-                    {pageItem.isActive ? (
+                    {personel.isActive ? (
                       <CheckCircleIcon />
                     ) : (
                       <SmallCloseIcon />
                     )}
                   </Td>
-                  <Td>{pageItem.createdAt}</Td>
+                  <Td>{personel.createdAt}</Td>
                   <Td>
                     <Button colorScheme="teal" size="xs">
                       Güncelle
@@ -79,7 +86,15 @@ function PersonelList() {
                     </Button>
                   </Td>
                 </Tr>
-              ))}
+              ))
+            ) : (
+              <Tr>
+                <Td colSpan={9} textAlign="center">
+                  Veri Bulunamadı
+                </Td>
+              </Tr>
+            )}
+            
           </Tbody>
           <Tfoot></Tfoot>
         </Table>
@@ -87,8 +102,8 @@ function PersonelList() {
       <Flex justifyContent="center" mt="5" mb="5" alignItems="center">
         <Tooltip label="Previous Page">
           <IconButton
-            //onClick={() => gotoPage(0)}
-            isDisabled={false}
+            onClick={() => setPage(page - 1)}
+            isDisabled={page === 1}
             icon={<ChevronLeftIcon h={6} w={6} />}
             mr={4}
           />
@@ -96,11 +111,11 @@ function PersonelList() {
         <Text flexShrink="0" mr={8}>
           Page{" "}
           <Text fontWeight="bold" as="span">
-            1
+            {page}
           </Text>{" "}
           of{" "}
           <Text fontWeight="bold" as="span">
-            10
+            {limit}
           </Text>
         </Text>
         <Text flexShrink="0">Go to page:</Text>{" "}
@@ -110,11 +125,11 @@ function PersonelList() {
           w={28}
           min={1}
           // max={pageOptions.length}
-          // onChange={(value) => {
-          //   const page = value ? value - 1 : 0;
-          //   gotoPage(page);
-          // }}
-          defaultValue={1}
+          onChange={(value) => {
+            setPage(parseInt(value));
+          }}
+          defaultValue={page}
+          value={page}
         >
           <NumberInputField />
           <NumberInputStepper>
@@ -124,21 +139,21 @@ function PersonelList() {
         </NumberInput>
         <Select
           w={32}
-          //value={1}
-          // onChange={(e) => {
-          //   setPageSize(Number(e.target.value));
-          // }}
+          value={limit}
+          onChange={(e) => {
+            setLimit(e.target.value);
+          }}
         >
           {[10, 20, 30, 40, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
-              Show {pageSize}
+              {pageSize}
             </option>
           ))}
         </Select>
         <Tooltip label="Next Page">
           <IconButton
-            // onClick={nextPage}
-            isDisabled={false}
+            onClick={() => setPage(page + 1)}
+            isDisabled={personelList.length < limit}
             ml={4}
             icon={<ChevronRightIcon h={6} w={6} />}
           />
