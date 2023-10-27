@@ -8,6 +8,8 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { AuthProvider } from "./Context/AuthContext";
 import { UserProvider } from "./Context/UserContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { DeleteAlertProvider } from "./Context/DeleteAlertContext";
+import { DayoffProvider } from "./Context/DayoffContext";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,7 +34,11 @@ root.render(
     >
       <AuthProvider>
         <UserProvider>
-          <App />
+          <DeleteAlertProvider>
+            <DayoffProvider>
+              <App />
+            </DayoffProvider>
+          </DeleteAlertProvider>
         </UserProvider>
       </AuthProvider>
     </ChakraProvider>

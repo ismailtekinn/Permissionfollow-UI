@@ -5,11 +5,13 @@ import { useAuth } from "../../Context/AuthContext";
 import { useUser } from "../../Context/UserContext";
 import CreateUserModal from "../modals/CreateUserModal";
 import { Link } from "react-router-dom";
+import { ADMIN, MANAGER } from "../../roles";
+
 
 function Header() {
   const { user, loggedIn } = useAuth();
   const { onOpenCreateUser, isOpenCreateUser } = useUser();
-  
+
   return (
     loggedIn && (
       <div className={styles.nav}>
@@ -20,17 +22,36 @@ function Header() {
               {user.firstName} {user.lastName}
             </Button>
 
-            <Button colorScheme="teal" size="md" onClick={onOpenCreateUser}>
-              Yeni Personel
-            </Button>
-
-            <Button colorScheme="teal" size="md" as={Link} to="/personel-list">
-              Personel Listesi
-            </Button>
-
+            {user.roleId === ADMIN && (
+              <Button colorScheme="teal" size="md" onClick={onOpenCreateUser}>
+                Yeni Personel
+              </Button>
+            )}
+            {(user.roleId === ADMIN || user.roleId === MANAGER) && (
+                <Button
+                  colorScheme="teal"
+                  size="md"
+                  as={Link}
+                  to="/personel-list"
+                >
+                  Personel Listesi
+                </Button>
+              )}
             <Button colorScheme="teal" size="md">
               Logout
             </Button>
+
+            {user.roleId !== ADMIN && (
+
+            <Button 
+            colorScheme="teal"
+            size="md" 
+            as={Link}
+            to="/new-password"
+            >
+              Şifre Yenile
+            </Button>
+            )}
           </Stack>
         </div>
         {isOpenCreateUser && <CreateUserModal />}

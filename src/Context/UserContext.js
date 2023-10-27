@@ -15,7 +15,7 @@ const UserProvider = ({ children }) => {
   const [updatePersonelDone,setUpdatePersonelDone] = useState(false);
 
   const editButtonClick = (personel) => {
-    console.log(personel);
+    console.log(personel.email);
     setEditPersonel({
       id: personel.id,
       email: personel.email,

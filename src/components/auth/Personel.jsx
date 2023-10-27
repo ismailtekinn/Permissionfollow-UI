@@ -20,6 +20,8 @@ import {
   Text,
   Tooltip,
   Card,
+  useDisclosure,
+ 
 } from "@chakra-ui/react";
 import {
   CheckCircleIcon,
@@ -35,6 +37,8 @@ function PersonelList() {
     queryKey: ["personel-list"],
     queryFn: fetchPersonelList,
   });
+
+
   return (
     <Card m={5}>
       <TableContainer>
@@ -144,7 +148,18 @@ function PersonelList() {
           />
         </Tooltip>
       </Flex>
+
+
+      
+
+
+
     </Card>
+      
+   
+
+
+    
   );
 }
 

@@ -58,10 +58,13 @@ function CreateUserModal() {
         }
         else{
           response= await fetchRegister(model);
+          debugger;
+          console.log("response", response );
         }
 
         if (!response.isSuccess) {
           bag.setErrors({ general: response.message });
+
         } else {
           toast({
             title: "Başarılı",

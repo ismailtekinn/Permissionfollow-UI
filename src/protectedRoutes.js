@@ -5,7 +5,7 @@ function ProtectedRoutes({ component: Component }) {
   const { loggedIn } = useAuth();
   if (loggedIn) return <Component />;
 
-  return <Navigate to="signin" />;
+  return <Navigate to="/signin" />;
 }
 
 export default ProtectedRoutes;

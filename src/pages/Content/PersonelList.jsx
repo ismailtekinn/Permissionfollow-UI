@@ -20,6 +20,7 @@ import {
   Text,
   Tooltip,
   Card,
+  useToast,
 } from "@chakra-ui/react";
 import {
   CheckCircleIcon,
@@ -27,14 +28,46 @@ import {
   ChevronRightIcon,
   SmallCloseIcon,
 } from "@chakra-ui/icons";
-import { fetchPersonelList } from "../../api";
+import { fetchDeleteUser, fetchPersonelList } from "../../api";
 import { useUser } from "../../Context/UserContext";
+import { useDeleteAlert } from "../../Context/DeleteAlertContext";
+import DeleteAlert from "../../components/modals/DeleteAlert";
+import { useAuth } from "../../Context/AuthContext";
+import { ADMIN } from "../../roles";
 
 function PersonelList() {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [personelList, setPersonelList] = useState([]);
-  const {editButtonClick, updatePersonelDone } = useUser();
+  const [willDeleteUserId, setWillDeleteUserId] = useState(null);
+  const { editButtonClick, updatePersonelDone, setUpdatePersonelDone } =
+    useUser();
+  const { user } = useAuth();
+  const { onOpenDeleteAlert, isOpenDeleteAlert } = useDeleteAlert();
+  const toast = useToast();
+
+  const deleteUser = async () => {
+    var response = await fetchDeleteUser(willDeleteUserId);
+    if (!response.isSuccess) {
+      toast({
+        title: "Başarısız",
+        description: response.message,
+        status: "error",
+      });
+    } else {
+      toast({
+        title: "Başarılı",
+        description: "Kullanıcı Silindi",
+        status: "success",
+      });
+      setUpdatePersonelDone(!updatePersonelDone);
+    }
+  };
+
+  const openDeleteAlert = (userId) => {
+    setWillDeleteUserId(userId);
+    onOpenDeleteAlert();
+  };
 
   useEffect(() => {
     (async () => {
@@ -79,12 +112,24 @@ function PersonelList() {
                   </Td>
                   <Td>{personel.createdAt}</Td>
                   <Td>
-                    <Button colorScheme="teal" size="xs" onClick={() => editButtonClick(personel)}>
-                      Güncelle
-                    </Button>{" "}
-                    <Button colorScheme="red" size="xs">
-                      Sil
-                    </Button>
+                    {user.roleId === ADMIN && (
+                      <>
+                        <Button
+                          colorScheme="teal"
+                          size="xs"
+                          onClick={() => editButtonClick(personel)}
+                        >
+                          Güncelle
+                        </Button>{" "}
+                        <Button
+                          colorScheme="red"
+                          size="xs"
+                          onClick={() => openDeleteAlert(personel.id)}
+                        >
+                          Sil
+                        </Button>
+                      </>
+                    )}
                   </Td>
                 </Tr>
               ))
@@ -95,7 +140,6 @@ function PersonelList() {
                 </Td>
               </Tr>
             )}
-            
           </Tbody>
           <Tfoot></Tfoot>
         </Table>
@@ -160,6 +204,14 @@ function PersonelList() {
           />
         </Tooltip>
       </Flex>
+
+      {isOpenDeleteAlert && (
+        <DeleteAlert
+          title="Personel Silme"
+          question="Personeli Silmek İstediğinize Emin Misiniz ?"
+          deleteMethod={deleteUser}
+        />
+      )}
     </Card>
   );
 }

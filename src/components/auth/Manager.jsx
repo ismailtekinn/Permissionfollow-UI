@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   TableContainer,
   SimpleGrid,
@@ -23,6 +23,8 @@ import {
   Flex,
   Tooltip,
   Spacer,
+  Toast,
+  useToast,
 } from "@chakra-ui/react";
 import { Card, CardBody, CardHeader, Text } from "@chakra-ui/react";
 import {
@@ -32,8 +34,77 @@ import {
   ChevronRightIcon,
   SmallCloseIcon,
 } from "@chakra-ui/icons";
+import {
+  fetchConfirmPermission,
+  fetchDenyPermission,
+  fetchpermissionList,
+} from "../../api";
+import { useDeleteAlert } from "../../Context/DeleteAlertContext";
+import DeleteAlert from "../modals/DeleteAlert";
 
 function Manager() {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [permissonList, setpermissonList] = useState([]);
+  const [willDeleteDayoffId, setWillDeleteDayoffId] = useState(null);
+  const [state, setState] = useState(" ");
+  const [willApproveDayoffId, setWillApproveDayoffId] = useState(null);
+  const { onOpenDeleteAlert, isOpenDeleteAlert } = useDeleteAlert();
+  const toast = useToast();
+
+  const deletePermission = async () => {
+    if (state == true) {
+      var response = await fetchDenyPermission(willDeleteDayoffId);
+      if (response.isSucces) {
+        toast({
+          title: "Başarısız",
+          description: response.message,
+          status: "error",
+        });
+      } else {
+        toast({
+          title: "Başarılı",
+          description: "İzin Reddedildi",
+          status: "success",
+        });
+      }
+    } else {
+       response = await fetchConfirmPermission(willApproveDayoffId);
+      if (response.isSucces) {
+        toast({
+          title: "Başarısız",
+          description: response.message,
+          status: "error",
+        });
+      } else {
+        toast({
+          title: "Başarılı",
+          description: "İzin Onaylandı",
+          status: "success",
+        });
+      }
+    }
+  };
+
+  const openApproveAlert = (dayoffId) => {
+    setWillApproveDayoffId(dayoffId);
+    setState(false);
+    onOpenDeleteAlert();
+  };
+  const openRejectAlert = (dayoffId) => {
+    setWillDeleteDayoffId(dayoffId);
+    setState(true);
+
+    onOpenDeleteAlert();
+  };
+
+  useEffect(() => {
+    (async () => {
+      const _permissionList = await fetchpermissionList(page, limit);
+      setpermissonList(_permissionList);
+    })();
+  }, [page, limit]);
+
   return (
     <>
       <SimpleGrid
@@ -138,7 +209,7 @@ function Manager() {
               <Tr>
                 <Th>Ad</Th>
                 <Th>Soyad</Th>
-                <Th>Birim</Th>
+                <Th>İizin Türü</Th>
                 <Th>İzin Başlangıç Tarihi</Th>
                 <Th>İzin Bitiş Tarihi</Th>
                 <Th>İzin Onay Durumu</Th>
@@ -146,60 +217,40 @@ function Manager() {
               </Tr>
             </Thead>
             <Tbody>
-              <Tr>
-                <Td>Ad 1</Td>
-                <Td>Soyad 1</Td>
-                <Td>Birim 1</Td>
-                <Td>Başlangıç Tarihi 1</Td>
-                <Td>Bitiş Tarihi 1</Td>
-                <Td>
-                  <CheckCircleIcon /> <SmallCloseIcon />
-                </Td>
-                <Td>
-                  <Button colorScheme="teal" size="xs">
-                    Onayla
-                  </Button>{" "}
-                  <Button colorScheme="red" size="xs">
-                    Reddet
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>Ad 1</Td>
-                <Td>Soyad 1</Td>
-                <Td>Birim 1</Td>
-                <Td>Başlangıç Tarihi 1</Td>
-                <Td>Bitiş Tarihi 1</Td>
-                <Td>
-                  <CheckCircleIcon /> <SmallCloseIcon />
-                </Td>
-                <Td>
-                  <Button colorScheme="teal" size="xs">
-                    Onayla
-                  </Button>{" "}
-                  <Button colorScheme="red" size="xs">
-                    Reddet
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>Ad 1</Td>
-                <Td>Soyad 1</Td>
-                <Td>Birim 1</Td>
-                <Td>Başlangıç Tarihi 1</Td>
-                <Td>Bitiş Tarihi 1</Td>
-                <Td>
-                  <CheckCircleIcon /> <SmallCloseIcon />
-                </Td>
-                <Td>
-                  <Button colorScheme="teal" size="xs">
-                    Onayla
-                  </Button>{" "}
-                  <Button colorScheme="red" size="xs">
-                    Reddet
-                  </Button>
-                </Td>
-              </Tr>
+              {permissonList.length !== 0 ? (
+                permissonList.map((permission) => (
+                  <Tr>
+                    <Td>{permission.name}</Td>
+                    <Td>{permission.name}</Td>
+                    <Td>{permission.dayoffTypeName}</Td>
+                    <Td>{permission.start_Date}</Td>
+                    <Td>{permission.end_Date}</Td>
+                    <Td>{permission.isApprove.toString()}</Td>
+                    <Td>
+                      <Button
+                        colorScheme="teal"
+                        size="xs"
+                        onClick={() => openApproveAlert(permission.id)}
+                      >
+                        Onayla
+                      </Button>{" "}
+                      <Button
+                        colorScheme="red"
+                        size="xs"
+                        onClick={() => openRejectAlert(permission.id)}
+                      >
+                        Reddet
+                      </Button>
+                    </Td>
+                  </Tr>
+                ))
+              ) : (
+                <Tr>
+                  <Td colSpan={9} textAlign="center">
+                    Veri Bulunamadı
+                  </Td>
+                </Tr>
+              )}
             </Tbody>
             <Tfoot></Tfoot>
           </Table>
@@ -291,7 +342,9 @@ function Manager() {
             </Thead>
             <Tbody>
               <Tr>
-                <Td colSpan="5" textAlign="center">Veri Bulunamadı</Td>
+                <Td colSpan="5" textAlign="center">
+                  Veri Bulunamadı
+                </Td>
               </Tr>
             </Tbody>
             <Tfoot></Tfoot>
@@ -358,6 +411,14 @@ function Manager() {
           </Tooltip>
         </Flex>
       </Card>
+
+      {isOpenDeleteAlert && (
+        <DeleteAlert
+          title="İzin Silme"
+          question="İzini İptal Etmek İstediğinize Emin Misiniz"
+          deleteMethod={deletePermission}
+        />
+      )}
     </>
   );
 }

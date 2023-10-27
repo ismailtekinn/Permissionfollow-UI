@@ -1,6 +1,7 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
 import { fetchMe } from "../api";
 import { Spinner } from "@chakra-ui/react";
+import { bool } from "yup";
 
 const AuthContext = createContext();
 
@@ -13,6 +14,7 @@ const AuthProvider = ({ children }) => {
   useEffect(() => {
     (async () => {
       try {
+        
         const me = await fetchMe();
 
         setLoggedIn(true);
@@ -20,6 +22,7 @@ const AuthProvider = ({ children }) => {
           firstName: me.firstName,
           lastName: me.lastName,
           roleId: me.roleId,
+          isActive : me.isActive
         };
         setUser(loggedUser);
         setLoading(false);
@@ -38,6 +41,8 @@ const AuthProvider = ({ children }) => {
       firstName: data.firstName,
       lastName: data.lastName,
       roleId: data.roleId,
+      isActive : data.isActive
+
     };
     setUser(loggedUser);
 

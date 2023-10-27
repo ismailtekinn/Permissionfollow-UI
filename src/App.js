@@ -7,6 +7,7 @@ import ProtectedRoutes from "./protectedRoutes";
 import { Box } from "@chakra-ui/layout";
 import { Card } from "@chakra-ui/card";
 import PersonelList from "./pages/Content/PersonelList";
+import Password from "./pages/Content/Password";
 
 function App() {
   return (
@@ -18,8 +19,10 @@ function App() {
         <Box m="5">
           <Routes>
             <Route path="/" element={<ProtectedRoutes component={Content} />} />
-            <Route path="/personel-list" Component={PersonelList} />
+            <Route path="/personel-list" element={<ProtectedRoutes component={PersonelList}/>} />
+            <Route path="/new-password" element={<ProtectedRoutes component={Password}/>} />
             <Route path="/signin" Component={Signin} />
+            {/* <Route path="/new-password" Component={Password}/> */}
           </Routes>
         </Box>
       </Router>
