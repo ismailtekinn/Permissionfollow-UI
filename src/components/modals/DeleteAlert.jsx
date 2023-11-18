@@ -10,7 +10,7 @@ import {
   import React from "react";
   import { useDeleteAlert } from "../../Context/DeleteAlertContext";
   
-  function DeleteAlert({ title, question, deleteMethod }) {
+  function DeleteAlert({ title, question, deleteMethod ,btnColorSchema = "red", btnText = "Sil"}) {
     const { isOpenDeleteAlert, onCloseDeleteAlert } = useDeleteAlert();
     const clickDeleteButton = () => {
       deleteMethod();
@@ -30,8 +30,8 @@ import {
   
             <AlertDialogFooter>
               <Button onClick={onCloseDeleteAlert}>İptal</Button>
-              <Button colorScheme="red" ml={3} onClick={() => clickDeleteButton()}>
-                Sil
+              <Button colorScheme={btnColorSchema} ml={3} onClick={() => clickDeleteButton()}>
+                {btnText}
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -1,66 +1,62 @@
-import { useFormik } from 'formik';
-import { 
-  
-    FormControl,
-    FormLabel,
-    FormErrorMessage,
-    FormHelperText,
-    Input,
-    Box,
-    Text,
-    Button,
-    Flex,
-    Heading,
-    Alert,
-    useToast,
+import { useFormik } from "formik";
+import {
+  FormControl,
+  FormLabel,
+  Input,
+  Box,
+  Text,
+  Button,
+  Flex,
+  Heading,
+  Alert,
+  useToast,
+  Card,
+} from "@chakra-ui/react";
+import React from "react";
+import { fetchUpdateUserPassword } from "../../api";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../Context/AuthContext";
+import validations from "./passwordUpdateValidation";
 
- } from '@chakra-ui/react'
-import React from 'react'
-import { fetchUpdateUserPassword } from '../../api';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../Context/AuthContext';
 
 function Password() {
-
-
   const navigate = useNavigate();
   const toast = useToast();
+  const { login } = useAuth();
   const formik = useFormik({
-    initialValues: { 
+    initialValues: {
       password: "",
-      passwordConfirm: ""
-     },
-
-    onSubmit: async (values,bag) => {
-      try{
+      passwordConfirm: "",
+    },
+    validationSchema: validations,
+    onSubmit: async (values, bag) => {
+      try {
         const userModel = {
           password: values.password,
         };
         const userUpdateResponse = await fetchUpdateUserPassword(userModel);
-
-        console.log(userUpdateResponse);
-        navigate("/")
-       if (!userUpdateResponse.isSuccess) {
-      toast({
-        title: "Başarısız",
-        description: userUpdateResponse.message,
-        status: "error",
-      });
-
-    } else {
-      toast({
-        title: "Başarılı",
-        description: "Şifre Güncellendi",
-        status: "success",
-      });
-    }
-      }catch(e){
-        bag.setErrors({general: e.response.data.message});
+        if (!userUpdateResponse.isSuccess) {
+          toast({
+            title: "Başarısız",
+            description: userUpdateResponse.message,
+            status: "error",
+          });
+        } else {
+          toast({
+            title: "Başarılı",
+            description: "Şifre Güncellendi",
+            status: "success",
+          });
+          login(userUpdateResponse.data);
+          navigate("/");
+        }
+      } catch (e) {
+        bag.setErrors({ general: e.response.data.message });
       }
-    }
-  })
+    },
+  });
   return (
-    <div>
+    <Card>
       <Flex align="center" width="full" justifyContent="center">
         <Box>
           <Box textAlign="center">
@@ -78,27 +74,31 @@ function Password() {
               <FormControl>
                 <FormLabel>Password</FormLabel>
                 <Input
-                  name="email"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={formik.touched.email && formik.errors.email}
-                />
-                {formik.touched.email && (
-                  <Text color="red">{formik.errors.email}</Text>
-                )}
-              </FormControl>
-
-              <FormControl>
-                <FormLabel>Password Confirm</FormLabel>
-                <Input
                   name="password"
                   type="password"
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   isInvalid={formik.touched.password && formik.errors.password}
                 />
-                 {formik.touched.password && (
+                {formik.touched.password && (
                   <Text color="red">{formik.errors.password}</Text>
+                )}
+              </FormControl>
+
+              <FormControl>
+                <FormLabel>Password Confirm</FormLabel>
+                <Input
+                  name="passwordConfirm"
+                  type="password"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    formik.touched.passwordConfirm &&
+                    formik.errors.passwordConfirm
+                  }
+                />
+                {formik.touched.passwordConfirm && (
+                  <Text color="red">{formik.errors.passwordConfirm}</Text>
                 )}
               </FormControl>
 
@@ -109,8 +109,8 @@ function Password() {
           </Box>
         </Box>
       </Flex>
-    </div>
-  )
+    </Card>
+  );
 }
 
 export default Password;

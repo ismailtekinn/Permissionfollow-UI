@@ -39,6 +39,7 @@ import PersonelDeyoffModel from "../modals/PersonelDeyoffModel";
 import { fetchDeleteDayoff, fetchdayoffList } from "../../api";
 import { useDeleteAlert } from "../../Context/DeleteAlertContext";
 import DeleteAlert from "../modals/DeleteAlert";
+import moment from "moment";
 
 function Person() {
   const [page, setPage] = useState(1);
@@ -109,7 +110,7 @@ function Person() {
           <Table variant="simple">
             <Thead>
               <Tr>
-                <Th>İzin Türü</Th>
+              <Th>İzin Türü</Th>
                 <Th>İzin Başlangıç Tarihi</Th>
                 <Th>İzin Bitiş Tarihi</Th>
                 <Th>İzin Hakkında</Th>
@@ -122,10 +123,17 @@ function Person() {
                 dayoffList?.map((dayoff) => (
                   <Tr key={dayoff.id}>
                     <Td>{dayoff.dayoffTypeName} </Td>
-                    <Td>{dayoff.start_Date}</Td>
-                    <Td>{dayoff.end_Date}</Td>
+                    <Td>{moment(dayoff.start_Date).format(("DD/MM/YYYY"))}</Td>
+                    <Td>{moment(dayoff.and_Date).format(("DD/MM/YYYY"))}</Td>
                     <Td>{dayoff.dayoff_Description}</Td>
-                    <Td>{dayoff.isApprove.toString() }</Td>
+                    <Td>
+                      {dayoff.isApprove ? (
+                        <CheckCircleIcon color="green.500" />
+                      ) : (
+                        <SmallCloseIcon color="red.500" />
+                      )}
+                    </Td>
+                
                     
                     <Td>
                   <>

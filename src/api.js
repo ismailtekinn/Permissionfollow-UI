@@ -79,19 +79,25 @@ export const fetchMe = async () => {
     const {data } = await axios.get(`https://localhost:44373/api/Dayoff/permission-list?page=${page}&limit=${limit}`);
     return data;
   }
-  export const fetchConfirmPermission = async(dayofId) => {
-    console.log(dayofId)
-    const {data} = await axios.post(`https://localhost:44373/api/Dayoff/to-approve?dayofId=${dayofId}`);
+  export const fetchConfirmPermission = async(model) => {
+    const {data} = await axios.post("https://localhost:44373/api/Dayoff/to-approve ",model);
     return data;
   }
 
-  export const fetchDenyPermission = async(dayofId) => {
-    const {data } = await axios.post(`https://localhost:44373/api/Dayoff/to-reject?dayofId=${dayofId}`);
-    return data ;
-  }
+  // export const fetchDenyPermission = async(dayofId) => {
+  //   const {data } = await axios.post(`https://localhost:44373/api/Dayoff/to-reject?dayofId=${dayofId}`);
+  //   return data ;
+  // }
 
   export const fetchUpdateUserPassword = async(user) => {
     console.log(user)
     const {data} = await axios.post("https://localhost:44373/api/user/user-password",user)
     return data;
   }
+
+  export const fetchMainInformation = async () => {
+    const { data } = await axios.get(
+      "https://localhost:44373/api/user/main-information"
+    );
+    return data;
+  };

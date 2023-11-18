@@ -1,7 +1,6 @@
 import React, { useState, useContext, createContext, useEffect } from "react";
 import { fetchMe } from "../api";
 import { Spinner } from "@chakra-ui/react";
-import { bool } from "yup";
 
 const AuthContext = createContext();
 
@@ -42,7 +41,6 @@ const AuthProvider = ({ children }) => {
       lastName: data.lastName,
       roleId: data.roleId,
       isActive : data.isActive
-
     };
     setUser(loggedUser);
 
@@ -50,10 +48,18 @@ const AuthProvider = ({ children }) => {
     setLoading(false);
   };
 
+  //logout
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("access-token");
+    setLoggedIn(false);
+  }
+
   const values = {
     loggedIn,
     user,
     login,
+    logout
   };
 
   if (loading) {

@@ -27,6 +27,7 @@ function Signin() {
       email: "",
       password: "",
     },
+    
     validationSchema: validations,
     
     onSubmit: async (values, bag) => {
@@ -37,7 +38,6 @@ function Signin() {
         };
         const loginResponse = await fetchLogin(inputModel);
         console.log(loginResponse.data.isActive);
-        debugger;
         
         if (!loginResponse.isSuccess) {
           bag.setErrors({ general: loginResponse.message });
@@ -46,10 +46,8 @@ function Signin() {
 
           if( loginResponse.data.roleId === ADMIN  ){
             navigate("/")
-          }
-          else if(loginResponse.data.isActive === "True"){
+          } else if(loginResponse.data.isActive === "True"){
             navigate("/")
-            
           }else{
             navigate("/new-password");
 
