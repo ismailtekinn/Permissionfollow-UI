@@ -101,3 +101,11 @@ export const fetchMe = async () => {
     );
     return data;
   };
+
+
+  export const fetchDayoffPersonelList = async (page,limit) => {
+    const {data} = await axios.get(
+      `https://localhost:44373/api/Dayoff/personal-dayoff-list?page=${page}&limit=${limit}`
+    );
+    return data;
+  }

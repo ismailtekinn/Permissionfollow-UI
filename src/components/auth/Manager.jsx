@@ -285,9 +285,9 @@ function Manager() {
         <Select
           w={32}
           //value={1}
-          // onChange={(e) => {
-          //   setPageSize(Number(e.target.value));
-          // }}
+          onChange={(e) => {
+            setLimit(e.target.value);
+          }}
         >
           {[10, 20, 30, 40, 50].map((pageSize) => (
             <option key={pageSize} value={pageSize}>
@@ -297,8 +297,8 @@ function Manager() {
         </Select>
         <Tooltip label="Next Page">
           <IconButton
-            // onClick={nextPage}
-            isDisabled={false}
+            onClick={()=> setPage(page +1)}
+            isDisabled={permissonList.length < limit}
             ml={4}
             icon={<ChevronRightIcon h={6} w={6} />}
           />

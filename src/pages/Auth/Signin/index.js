@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
   Text,
+  Card,
 } from "@chakra-ui/react";
 
 import { fetchLogin } from "../../../api";
@@ -59,7 +60,7 @@ function Signin() {
     },
   });
   return (
-    <div>
+    <Card>
       <Flex align="center" width="full" justifyContent="center">
         <Box>
           <Box textAlign="center">
@@ -108,7 +109,7 @@ function Signin() {
           </Box>
         </Box>
       </Flex>
-    </div>
+    </Card>
   );
 }
 

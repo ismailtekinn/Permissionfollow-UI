@@ -22,7 +22,7 @@ import {
   Flex,
   Tooltip,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardBody, CardHeader, Text } from "@chakra-ui/react";
 import {
   CheckCircleIcon,
@@ -30,100 +30,45 @@ import {
   ChevronRightIcon,
   SmallCloseIcon,
 } from "@chakra-ui/icons";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { fetchDayoffPersonelList, fetchMainInformation,  } from "../../api";
+import CardItem from "./CardItem";
+import moment from "moment";
 
 function Admin() {
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [dayoffPersonelLists, setDayOffPersonel] = useState([]);
+  const { status, data, error } = useInfiniteQuery({
+    queryKey: ["main-information"],
+    queryFn: fetchMainInformation,
+  });
+
+  useEffect(() => {
+    (async () => {
+      const _dayoffPersonelLists = await fetchDayoffPersonelList(page, limit);
+      console.log(_dayoffPersonelLists.data[0]);
+      setDayOffPersonel(_dayoffPersonelLists.data);
+      
+
+    
+    })();
+  },[page,limit]);
+
+  if (status === "error") return "An error occurred " + error.message;
+
   return (
     <>
       <SimpleGrid
         spacing={5}
         templateColumns="repeat(auto-fill, minmax(400px, 1fr))"
       >
-        <Card w="100%" h="100px">
-          <CardHeader
-            size="md"
-            bgGradient="linear(to-l, #7928CA, #FF0080)"
-            bgClip="text"
-            fontSize="2xl"
-            fontWeight="extrabold"
-          >
-            Toplam Personel
-          </CardHeader>
-          <CardBody>
-            <Text
-              fontSize="2xl"
-              bgGradient="linear(to-l, red, black)"
-              bgClip="text"
-              fontWeight="extrabold"
-            >
-              Sayı
-            </Text>
-          </CardBody>
-        </Card>
-        <Card w="100%" h="100px">
-          <CardHeader
-            size="md"
-            bgGradient="linear(to-l, #7928CA, #FF0080)"
-            bgClip="text"
-            fontSize="2xl"
-            fontWeight="extrabold"
-          >
-            Mevcut İzinli Sayısı
-          </CardHeader>
-          <CardBody>
-            <Text
-              fontSize="2xl"
-              bgGradient="linear(to-l, red, black)"
-              bgClip="text"
-              fontWeight="extrabold"
-            >
-              Sayı
-            </Text>
-          </CardBody>
-        </Card>
-        <Card w="100%" h="100px">
-          <CardHeader
-            size="md"
-            bgGradient="linear(to-l, #7928CA, #FF0080)"
-            bgClip="text"
-            fontSize="2xl"
-            fontWeight="extrabold"
-          >
-            Onay Bekleyen İzin Talebi
-          </CardHeader>
-          <CardBody>
-            <Text
-              fontSize="2xl"
-              bgGradient="linear(to-l, red, black)"
-              bgClip="text"
-              fontWeight="extrabold"
-            >
-              Sayı
-            </Text>
-          </CardBody>
-        </Card>
-        <Card w="100%" h="100px">
-          <CardHeader
-            size="md"
-            bgGradient="linear(to-l, #7928CA, #FF0080)"
-            bgClip="text"
-            fontSize="2xl"
-            fontWeight="extrabold"
-          >
-            Toplam İzin Sayısı / Mevcut Ay
-          </CardHeader>
-          <CardBody>
-            <Text
-              fontSize="2xl"
-              bgGradient="linear(to-l, red, black)"
-              bgClip="text"
-              fontWeight="extrabold"
-            >
-              Sayı
-            </Text>
-          </CardBody>
-        </Card>
+        {data &&
+          data.pages[0].data.map((item, index) => (
+            <CardItem text={item.text} count={item.count} key={index} />
+          ))}
       </SimpleGrid>
-    
+
       <Card mt="30">
         <Box position="relative" padding="10">
           <Divider />
@@ -145,60 +90,35 @@ function Admin() {
               </Tr>
             </Thead>
             <Tbody>
-              <Tr>
-                <Td>Ad 1</Td>
-                <Td>Soyad 1</Td>
-                <Td>Birim 1</Td>
-                <Td>Başlangıç Tarihi 1</Td>
-                <Td>Bitiş Tarihi 1</Td>
-                <Td>
-                  <CheckCircleIcon /> <SmallCloseIcon />
-                </Td>
-                <Td>
-                  <Button colorScheme="teal" size="xs">
-                    Onayla
-                  </Button>{" "}
-                  <Button colorScheme="red" size="xs">
-                    Reddet
-                  </Button>
-                </Td>
-              </Tr>
-              <Tr>
-                <Td>Ad 1</Td>
-                <Td>Soyad 1</Td>
-                <Td>Birim 1</Td>
-                <Td>Başlangıç Tarihi 1</Td>
-                <Td>Bitiş Tarihi 1</Td>
-                <Td>
-                  <CheckCircleIcon /> <SmallCloseIcon />
-                </Td>
-                <Td>
-                  <Button colorScheme="teal" size="xs">
-                    Onayla
-                  </Button>{" "}
-                  <Button colorScheme="red" size="xs">
-                    Reddet
-                  </Button>
+              {dayoffPersonelLists.length !== 0 ? (
+                 dayoffPersonelLists.map((dayofPersonel)=> (
+                  <Tr key={dayofPersonel.id}>
+                    <Td>{dayofPersonel.name}</Td>
+                    <Td>{dayofPersonel.surname}</Td>
+                    <Td>{dayofPersonel.dayoffTypeName}</Td>
+                    <Td>
+                      {moment(dayofPersonel.start_Date).format("DD/MM/YYYY")}
+                      </Td>
+                    <Td>{moment(dayofPersonel.end_Date).format("DD/MM/YYYY")}</Td>
+                    <Td>
+                      {dayofPersonel.isApprove ? (
+                        <CheckCircleIcon color="green.500" />
+                      ) : (
+                        <SmallCloseIcon color="red.500" />
+                      )}
+                    </Td>
+                    <Td></Td>
+                  </Tr> 
+              ))
+              ) : (
+                <Tr>
+                <Td colSpan={9} textAlign="center">
+                  Veri Bulunamadı
                 </Td>
               </Tr>
-              <Tr>
-                <Td>Ad 1</Td>
-                <Td>Soyad 1</Td>
-                <Td>Birim 1</Td>
-                <Td>Başlangıç Tarihi 1</Td>
-                <Td>Bitiş Tarihi 1</Td>
-                <Td>
-                  <CheckCircleIcon /> <SmallCloseIcon />
-                </Td>
-                <Td>
-                  <Button colorScheme="teal" size="xs">
-                    Onayla
-                  </Button>{" "}
-                  <Button colorScheme="red" size="xs">
-                    Reddet
-                  </Button>
-                </Td>
-              </Tr>
+              )}
+             
+ 
             </Tbody>
             <Tfoot></Tfoot>
           </Table>
@@ -206,8 +126,8 @@ function Admin() {
         <Flex justifyContent="center" mt="5" mb="5" alignItems="center">
           <Tooltip label="Previous Page">
             <IconButton
-              //onClick={() => gotoPage(0)}
-              isDisabled={false}
+              onClick={() => setPage(page - 1)}
+              isDisabled={page === 1}
               icon={<ChevronLeftIcon h={6} w={6} />}
               mr={4}
             />
@@ -215,11 +135,11 @@ function Admin() {
           <Text flexShrink="0" mr={8}>
             Page{" "}
             <Text fontWeight="bold" as="span">
-              1
+              {page}
             </Text>{" "}
             of{" "}
             <Text fontWeight="bold" as="span">
-              10
+              {limit}
             </Text>
           </Text>
           <Text flexShrink="0">Go to page:</Text>{" "}
@@ -229,11 +149,11 @@ function Admin() {
             w={28}
             min={1}
             // max={pageOptions.length}
-            // onChange={(value) => {
-            //   const page = value ? value - 1 : 0;
-            //   gotoPage(page);
-            // }}
-            defaultValue={1}
+            onChange={(value) => {
+             setPage(parseInt(value));
+            }}
+            defaultValue={page}
+            value={page}
           >
             <NumberInputField />
             <NumberInputStepper>
@@ -243,10 +163,10 @@ function Admin() {
           </NumberInput>
           <Select
             w={32}
-            //value={1}
-            // onChange={(e) => {
-            //   setPageSize(Number(e.target.value));
-            // }}
+            value={limit}
+            onChange={(e) => {
+              setLimit(e.target.value);
+            }}
           >
             {[10, 20, 30, 40, 50].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
@@ -256,8 +176,8 @@ function Admin() {
           </Select>
           <Tooltip label="Next Page">
             <IconButton
-              // onClick={nextPage}
-              isDisabled={false}
+              onClick={() => setPage(page + 1)}
+              isDisabled={dayoffPersonelLists.length < limit}
               ml={4}
               icon={<ChevronRightIcon h={6} w={6} />}
             />
