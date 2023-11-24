@@ -20,7 +20,7 @@ function App() {
           <Routes>
             <Route path="/" element={<ProtectedRoutes component={Content} />} />
             <Route path="/personel-list" element={<ProtectedRoutes component={PersonelList}/>} />
-            <Route path="/new-password" element={<ProtectedRoutes component={Password}/>} />
+            <Route path="/new-password" element={<ProtectedRoutes component={Password} newPasswordPage={true}/>} />
             <Route path="/signin" Component={Signin} />
             {/* <Route path="/new-password" Component={Password}/> */}
           </Routes>
